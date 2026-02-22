@@ -621,7 +621,7 @@ Agent Layer (TS, Python, Go, Rust SDKs + CLI agents)</div>
         <tr><td><strong>Dashboard</strong></td><td>9-section SvelteKit 2 app</td><td>Next.js dashboard + pattern builder</td></tr>
         <tr><td><strong>CLI</strong></td><td>60+ commands, guard system, CI generation</td><td>Pattern execution CLI</td></tr>
         <tr><td><strong>SDK</strong></td><td>13 client modules, dual distribution (ESM/CJS), 3 auth strategies</td><td>4-language gRPC SDKs (TS/Python/Go/Rust)</td></tr>
-        <tr><td><strong>Observability</strong></td><td>ClickHouse + OpenTelemetry + distributed tracing</td><td>Prometheus + Jaeger + Grafana</td></tr>
+        <tr><td><strong>Observability</strong></td><td>Full-stack: OpenTelemetry + Grafana Tempo/Loki/Prometheus + AlertManager + 6 dashboards + 10 runbooks (<a href="#observability">see &sect;2.9</a>)</td><td>Prometheus + Jaeger + Grafana</td></tr>
       </tbody>
     </table>
   </div>
@@ -771,6 +771,31 @@ Agent Layer (TS, Python, Go, Rust SDKs + CLI agents)</div>
   </div>
 
   <p>Parallax&rsquo;s K8s deployment is more conventional but proven &mdash; the GCP Terraform modules, CRDs, and Helm chart approach is battle-tested infrastructure. Both projects are K8s-native, meaning portability between providers is achievable.</p>
+
+  <h3 id="observability">2.9 Observability &amp; Monitoring</h3>
+  <p>AF has a comprehensive <a href="https://github.com/alternatefutures/admin/blob/main/docs/architecture/observability-design.md">observability design</a> (Phase 9, 20h budget) covering distributed tracing, metrics, logging, alerting, dashboards, health checks, cost tracking, and incident response. This is one of the more detailed observability plans in the multi-agent space.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Capability</th><th>AF (planned, Phase 9)</th><th>Parallax</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Distributed tracing</strong></td><td><code>tracing</code> + <code>tracing-opentelemetry</code> &rarr; Grafana Tempo via OTLP/gRPC. W3C <code>traceparent</code> propagation across NATS boundary. Full request path instrumentation (HTTP &rarr; A2A gateway &rarr; orchestrator &rarr; agent &rarr; model &rarr; tool &rarr; memory).</td><td>Jaeger integration via OpenTelemetry</td></tr>
+        <tr><td><strong>Metrics</strong></td><td>50+ Prometheus metrics across 8 categories: agent fleet (7), task throughput (6), model provider (8), memory subsystem (11), NATS transport (7), sandbox/tool (6), errors (4), cost (4). Served at <code>/metrics</code>, 15s scrape interval.</td><td>Prometheus metrics (standard Node.js + custom)</td></tr>
+        <tr><td><strong>Logging</strong></td><td>Structured JSON via <code>tracing-subscriber</code> with per-component log levels, <code>trace_id</code>/<code>span_id</code> in every line for log-to-trace correlation, per-agent isolation via span fields, secret redaction layer (API keys, tokens, PII). Shipped via Promtail &rarr; Grafana Loki.</td><td>pino structured logging</td></tr>
+        <tr><td><strong>Alerting</strong></td><td>3-tier alert taxonomy: P0 (page immediately &mdash; crash loops, all providers down, security breach, cost spike &gt;200%), P1 (15min &mdash; single provider down, queue backup, high error rate), P2 (daily digest &mdash; cost drift, stale agents, cert expiry). Prometheus AlertManager with PagerDuty + Slack routing.</td><td>Not detailed</td></tr>
+        <tr><td><strong>Dashboards</strong></td><td>6 Grafana dashboards: System Overview, Agent Fleet (per-agent deep dive), Task Pipeline, Model Performance, Cost Center, Security Events. All version-controlled as JSON.</td><td>Grafana dashboards (general)</td></tr>
+        <tr><td><strong>Health checks</strong></td><td>3 K8s-style probes: <code>/healthz</code> (liveness &mdash; tokio deadlock detection), <code>/readyz</code> (readiness &mdash; NATS + agents + memory + model provider checks), <code>/startupz</code> (9-step init checklist). Akash SDL integrated.</td><td>Docker/K8s health checks</td></tr>
+        <tr><td><strong>Cost tracking</strong></td><td>Per-agent, per-model, per-task cost attribution. 3-level budget enforcement: per-task token limits &rarr; per-agent daily USD caps &rarr; global daily circuit breaker. Auto-pause on budget exceeded. Hot-reloadable pricing tables. Daily cost reports.</td><td>Not addressed</td></tr>
+        <tr><td><strong>Incident runbooks</strong></td><td>10 runbooks: Agent Crash Loop, NATS Partition, Model Timeout Cascade, Memory OOM, Sandbox Escape/Security Breach, Cost Overrun, Certificate Expiry, DePIN Provider Failure, A2A Task Stuck, Deployment Rollback. Each with immediate/investigate/resolve/prevention steps.</td><td>Not addressed</td></tr>
+        <tr><td><strong>Trace sampling</strong></td><td>Intelligent: 100% for errors/security/slow requests, 50% for A2A external, 10% normal, 0% health checks. Custom <code>ShouldSample</code> implementation.</td><td>Not detailed</td></tr>
+        <tr><td><strong>Span taxonomy</strong></td><td>25 named span types with standardized attributes (e.g., <code>model.generate</code> carries <code>provider</code>, <code>model</code>, <code>tokens_in/out</code>, <code>cost_usd</code>, <code>latency_ms</code>). Enables TraceQL queries like &ldquo;find slow model calls across the NATS boundary.&rdquo;</td><td>Standard OpenTelemetry spans</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="assessment">
+    <strong>Assessment:</strong> AF&rsquo;s observability design is unusually thorough for a pre-launch platform &mdash; most projects don&rsquo;t have 10 incident runbooks before writing the first line of runtime code. The cost tracking system with 3-level budget enforcement is particularly relevant for multi-agent workloads where LLM costs can spike unpredictably. Parallax&rsquo;s Prometheus + Jaeger + Grafana stack is solid and production-proven, but the documentation doesn&rsquo;t detail the same level of metric granularity or operational playbooks.
+  </div>
 
   <!-- Section 3: Synergies -->
   <h2 id="synergies">3. Synergies &amp; Ideas Worth Sharing</h2>
