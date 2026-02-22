@@ -529,7 +529,7 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <p style="margin-bottom:0.75rem;">Parallax and AlternateFutures are approaching multi-agent orchestration from complementary angles. Parallax is an impressive orchestration-focused platform with a <strong>confidence protocol</strong> (0.0&ndash;1.0 scoring on every agent result), a <strong>Prism DSL</strong> with 40 composable orchestration primitives, and multi-language SDKs (TS/Python/Go/Rust). It solves the problem of <strong>agent coordination quality</strong> &mdash; how do you aggregate outputs, track uncertainty, and enforce quality gates when multiple agents work together?</p>
-    <p style="margin-bottom:0.75rem;">AF is building a <strong>full decentralized cloud platform</strong> &mdash; the runtime is one layer in a stack that includes an API (50+ queries, 40+ mutations), SDK (13 client modules), CLI (60+ commands), Dashboard (9-section SvelteKit app), billing, decentralized storage, observability, and multi-provider DePIN infrastructure.</p>
+    <p style="margin-bottom:0.75rem;">AF is building a <strong>full decentralized cloud platform</strong> &mdash; the runtime is one layer in a stack that includes an API (50+ queries, 40+ mutations), SDK (13 client modules), CLI (60+ commands), Dashboard (Next.js + Radix UI), billing, decentralized storage, observability, and multi-provider DePIN infrastructure.</p>
     <p style="margin-bottom:0;">The two projects have <strong>minimal overlap and strong complementary strengths</strong>. Parallax excels at orchestration patterns and confidence-driven coordination. AF excels at platform infrastructure, decentralized deployment, security, and memory systems. The most productive path forward is exploring how these strengths could reinforce each other.</p>
   </div>
 
@@ -618,7 +618,7 @@ Agent Layer (TS, Python, Go, Rust SDKs + CLI agents)</div>
         <tr><td><strong>Domains</strong></td><td>Web2 + ENS + ArNS + IPNS + auto-SSL (Let&rsquo;s Encrypt)</td><td>Outside scope</td></tr>
         <tr><td><strong>Serverless</strong></td><td>Full lifecycle (create/deploy/route/SGX enclaves)</td><td>Outside scope</td></tr>
         <tr><td><strong>Agent chat</strong></td><td>WebSocket real-time, file attachments, message history</td><td>Different focus (agents as workers)</td></tr>
-        <tr><td><strong>Dashboard</strong></td><td>9-section SvelteKit 2 app</td><td>Next.js dashboard + pattern builder</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td>Next.js + Radix UI (14 sections: analytics, billing, deployments, domains, functions, storage, etc.)</td><td>Next.js dashboard + pattern builder</td></tr>
         <tr><td><strong>CLI</strong></td><td>60+ commands, guard system, CI generation</td><td>Pattern execution CLI</td></tr>
         <tr><td><strong>SDK</strong></td><td>13 client modules, dual distribution (ESM/CJS), 3 auth strategies</td><td>4-language gRPC SDKs (TS/Python/Go/Rust)</td></tr>
         <tr><td><strong>Observability</strong></td><td>Full-stack: OpenTelemetry + Grafana Tempo/Loki/Prometheus + AlertManager + 6 dashboards + 10 runbooks (<a href="#observability">see &sect;2.9</a>)</td><td>Prometheus + Jaeger + Grafana</td></tr>
